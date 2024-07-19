@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import cors from "cors"
 import TaskRouter from "../routes/gpt.routes";
+import { errorHandler } from "../middleware/ErrorHandler";
 
 export class App {
     private app: Application;
@@ -16,6 +17,7 @@ export class App {
             credentials: true
         }))
         this.app.use(express.json())
+        this.app.use(errorHandler)
     }
     private Routes(): void {
         this.app.use("/api", TaskRouter);
