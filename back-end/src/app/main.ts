@@ -10,6 +10,7 @@ export class App {
         this.settings();
         this.middleware();
         this.Routes();
+        // this.errorHandling();
     }
     private middleware() {
         this.app.use(cors({
@@ -17,11 +18,15 @@ export class App {
             credentials: true
         }))
         this.app.use(express.json())
-        this.app.use(errorHandler)
     }
     private Routes(): void {
         this.app.use("/api", TaskRouter);
+        this.app.use(errorHandler)
     }
+    // prueba
+    // private errorHandling() {
+    //     this.app.use(errorHandler)
+    // }
     settings() {
         this.app.set('port', this.port || process.env.PORT || 3000)
     }
