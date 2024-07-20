@@ -19,3 +19,4 @@ export const generateChat = async (req: Request, res: Response) => {
         return res.status(500).json({ error: `An internal server ${error}` })
     }
 }
+
