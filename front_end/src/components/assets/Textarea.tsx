@@ -2,9 +2,9 @@ import React from "react";
 import { useAuth } from "../../context/Auth.Context";
 
 const TextareaComp: React.FC = () => {
-    const { handleInput } = useAuth()
+    const { handler, dataString } = useAuth()
     return (
-        <textarea name="" id="" onChange={handleInput}></textarea>
+        <textarea value={dataString.prompt} name="" id="" onChange={handler("input")} placeholder="Enter you prompt" />
     )
 }
 export default TextareaComp;
