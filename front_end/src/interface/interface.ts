@@ -6,7 +6,7 @@ export interface StringsParams {
 }
 
 export interface ContextProp {
-    handler: (op: "submit" | "input") => (e: React.FormEvent<HTMLFormElement> | ChangeEvent<HTMLTextAreaElement>) => void;
+    handler: (op: "submit" | "input") => (e: React.FormEvent<HTMLFormElement> | ChangeEvent<HTMLInputElement>) => void;
     dataString: StringsParams
 }
 export interface ProviderProps { children: JSX.Element }

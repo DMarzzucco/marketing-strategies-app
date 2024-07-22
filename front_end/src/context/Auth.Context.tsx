@@ -2,6 +2,7 @@ import React, { ChangeEvent, createContext, useContext, useState } from "react";
 import { ContextProp, ProviderProps, StringsParams } from "../interface/interface";
 import { gptResponse } from "../api/api";
 import { StringsProps } from "../components/bases/date";
+import axios from "axios";
 
 export const AuthContext = createContext<ContextProp | undefined>(undefined)
 
@@ -14,43 +15,41 @@ const AuthProvider: React.FC<ProviderProps> = ({ children }) => {
 
     const [dataString, setDataString] = useState<StringsParams>(StringsProps)
 
-    const handler = (op: "submit" | "input") => async (e: React.FormEvent<HTMLFormElement> | ChangeEvent<HTMLTextAreaElement>) => {
+    const handler = (op: "submit" | "input") => async (e: React.FormEvent<HTMLFormElement> | ChangeEvent<HTMLInputElement>) => {
         if (op === "submit") {
             e.preventDefault()
             try {
-                const response = await gptResponse()
-                if (!response) {
-                    console.log("no hay respuesta del servidor")
-                    setDataString (prev => ({
-                        ...prev,
-                        error: prev.error = "No hay respuestas del servidor"
+                const result = await gptResponse(dataString.prompt)
+                if (!result) {
+                    setDataString(prev => ({
+                        ...prev, error: "No hay respuestas del servidor"
                     }))
                 }
-                if (response.status === 400){
+                setDataString(prev => ({
+                    ...prev,
+                    strategy: result.data.result,
+                    error: ""
+                }))
+                const timer = setTimeout(() => window.location.reload(), 500)
+                return () => clearTimeout(timer)
+            } catch (error: any) {
+                if (axios.isAxiosError(error) && error.response) {
+                    const resErr = error.response.data
                     setDataString(prev => ({
                         ...prev,
-                        error:prev.error = `${prev} error en el modelo `
+                        error: resErr.errors.map((err: any) => err.message).join(',')
                     }))
                 }
-                setDataString(prev => ({
-                    ...prev,
-                    strategy: prev.strategy = response.data.result,
-                    error: prev.error = ""
-                }))
-            } catch (error) {
-                setDataString(prev => ({
-                    ...prev,
-                    error: prev.error = "Error generatiing marketin strategy"
-                }))
+            } finally {
+                const timer = setTimeout(() => {
+                    setDataString(prev => ({ ...prev, error: "" }))
+                }, 1000);
+                return () => clearTimeout(timer)
             }
-            return null;
         }
         const target = e.target as HTMLTextAreaElement;
         const value = target.value;
-        setDataString(prev => ({
-            ...prev,
-            prompt: prev.prompt = value
-        }))
+        setDataString(prev => ({ ...prev, prompt: value }))
     }
     return (
         <AuthContext.Provider value={{ handler, dataString }}>

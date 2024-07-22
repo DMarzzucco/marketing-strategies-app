@@ -5,6 +5,9 @@ export const generateChat = async (req: Request, res: Response) => {
     const { prompt } = req.body;
 
     try {
+        if (!prompt) {
+            return res.status(400).json({ message: "Prompt is required" })
+        }
         const completion = await Openai.chat.completions.create({
             messages: [
                 { role: "system", content: "Your are a helpful assistant specfialize in marketing strategies." },
@@ -16,7 +19,14 @@ export const generateChat = async (req: Request, res: Response) => {
 
     } catch (error: any) {
         console.error(`Full ${error}`)
-        return res.status(500).json({ error: `An internal server ${error}` })
+        if (error.response) {
+            return res.status(error.response.status).json({ errors: [{ message: error.response.data }] })
+            // error.response.data
+        }
+        if (error.request) {
+            return res.status(502).json({ errors: [{ message: "No response form OpenAI" }] })
+        }
+        return res.status(500).json({ errors: [{ message: `An internal server ${error}` }] })
     }
 }
 
